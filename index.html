@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            display: flex;
+            color: white;
+            background-color: rgba(18 18 18);
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .container {
+            text-align: center;
+            width: 90%;
+            padding: 20px;
+            border: 1px solid gray;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #playerDisplay {
+            margin: 20px 0;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            width: 100%;
+            height: 400px;
+            border: 1px solid gray;
+            border-radius: 20px;
+            padding: 0 10px;
+            overflow-y: scroll;
+            margin: 0 auto;
+            overflow-x: hidden;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+
+        #coins {
+            font-weight: bold;
+        }
+
+        img {
+            border: 1px solid white;
+            height: 370px;
+            border-radius: 20px;
+            background-color: rgba(18 18 18);
+            margin: 3px 0;
+        }
+    </style>
+    <title>Random Player Generator</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Random Player Generator</h1>
+        <p id="coinCount">Coins: <span id="coins">0</span></p>
+        <button id="generateBtn">Generate Random Player (Cost: 100 Coins)</button>
+        <button id="addCoinsBtn">Add 5 Coins</button>
+        <div style="display: none;" id="playerDisplay"></div>
+        <hr>
+        <h2>Player List</h2>
+        <ul id="playerList"></ul>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const generateBtn = document.getElementById("generateBtn");
+            const addCoinsBtn = document.getElementById("addCoinsBtn");
+            const playerDisplay = document.getElementById("playerDisplay");
+            const playerList = document.getElementById("playerList");
+            const coinsElement = document.getElementById("coins");
+
+            let coins = parseInt(localStorage.getItem("coins")) || 0;
+
+            // Display initial coins count and player list
+            updateCoinCount();
+            displayPlayerList();
+
+            generateBtn.addEventListener("click", function () {
+                if (coins >= 100) {
+                    coins -= 100;
+                    updateCoinCount();
+
+                    const players = [
+                        { name: "Nemar", image: "PI/nemar.jpg" },
+                        { name: "Ronaldo", image: "PI/ronaldo.jpg" },
+                        { name: "Ramos", image: "PI/ramos.jpg" },
+                        { name: "Salah", image: "PI/salah.jpg" },
+                        { name: "Pele", image: "PI/pele.jpg" }
+                    ];
+
+                    let storedPlayers = JSON.parse(localStorage.getItem("players")) || [];
+
+                    // Filter out the players already displayed
+                    const availablePlayers = players.filter(player => !storedPlayers.some(savedPlayer => savedPlayer.name === player.name));
+
+                    if (availablePlayers.length > 0) {
+                        const randomPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+
+                        // Display player image
+                        playerDisplay.innerHTML = `<img src="${randomPlayer.image}" alt="${randomPlayer.name}">`;
+                        storedPlayers.push(randomPlayer);
+
+                        savePlayer(storedPlayers);
+                        displayPlayerList();
+
+                        // Hide playerDisplay after 3 seconds (adjust the time as needed)
+                        setTimeout(() => {
+                            playerDisplay.innerHTML = "";
+                        }, 3000);
+                    } else {
+                        alert("All players have been displayed. Resetting the player list.");
+                        displayPlayerList(); // Clear the displayed players
+                    }
+                } else {
+                    alert("Not enough coins! You need at least 100 coins to generate a player.");
+                }
+            });
+
+            addCoinsBtn.addEventListener("click", function () {
+                coins += 5;
+                updateCoinCount();
+                saveCoins();
+            });
+
+            function savePlayer(players) {
+                localStorage.setItem("players", JSON.stringify(players));
+            }
+
+            function displayPlayerList() {
+                const storedPlayers = JSON.parse(localStorage.getItem("players")) || [];
+                playerList.innerHTML = "";
+                storedPlayers.forEach(function (player) {
+                    const li = document.createElement("li");
+                    li.innerHTML = `<img src="${player.image}" alt="${player.name}">`;
+                    playerList.appendChild(li);
+                });
+            }
+
+            function updateCoinCount() {
+                coinsElement.textContent = coins;
+                saveCoins();
+            }
+
+            function saveCoins() {
+                localStorage.setItem("coins", coins);
+            }
+        });
+
+    </script>
+</body>
+
+</html>
